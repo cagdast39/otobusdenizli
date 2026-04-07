@@ -7,7 +7,10 @@ import './css/index.css';
 import { inject } from '@vercel/analytics';
 
 // Analytics başlat
-inject();
+inject({
+  mode: import.meta.env.MODE === 'development' ? 'development' : 'production',
+  debug: import.meta.env.MODE === 'development',
+});
 import { getAllStations, searchStationOrRoute, getTimetableImage, getBusDataForStation } from './api/denizli-api.js';
 import {
   findRoutes, calculateDistance, formatDistance, formatDuration,
