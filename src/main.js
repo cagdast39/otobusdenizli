@@ -4,6 +4,10 @@
  */
 
 import './css/index.css';
+import { inject } from '@vercel/analytics';
+
+// Analytics başlat
+inject();
 import { getAllStations, searchStationOrRoute, getTimetableImage, getBusDataForStation } from './api/denizli-api.js';
 import {
   findRoutes, calculateDistance, formatDistance, formatDuration,
