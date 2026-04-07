@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OtobüsDenizli — Akıllı Şehir İçi Rota Asistanı</title>
+  <meta name="description"
+    content="Denizli için optimize edilmiş hızlı otobüs rotası bulucu, akıllı ulaşım rehberi ve canlı zaman makinesi. Reklamsız, hızlı ve ücretsiz Denizli otobüs rota planlayıcı." />
+  <meta name="keywords" content="denizli otobüs, denizli otobüs rotası, denizli ulaşım, denizli akıllı ulaşım, denizli otobüs saatleri, otobüs denizli, denizli belediyesi otobüs, pamukkale ulaşım, güzergah bulucu" />
+  
+  <link rel="canonical" href="https://otobusdenizli.com/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="OtobüsDenizli" />
+  
+  <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://otobusdenizli.com/" />
+  <meta property="og:title" content="OtobüsDenizli — Akıllı Şehir İçi Rota Asistanı" />
+  <meta property="og:description" content="Denizli için reklamsız, hızlı ve akıllı otobüs rotası bulucu ve canlı zaman hesaplayıcı sistemi." />
+  <meta property="og:image" content="https://otobusdenizli.com/og-image.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://otobusdenizli.com/" />
+  <meta name="twitter:title" content="OtobüsDenizli — Akıllı Rota Tespiti" />
+  <meta name="twitter:description" content="Denizli için reklamsız, hızlı ve akıllı otobüs rotası bulucu." />
+  <meta name="twitter:image" content="https://otobusdenizli.com/og-image.png" />
+
+  <!-- JSON-LD Structured Data for Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "OtobüsDenizli",
+    "url": "https://otobusdenizli.com",
+    "description": "Denizli için optimize edilmiş hızlı otobüs rotası bulucu, akıllı ulaşım asistanı.",
+    "applicationCategory": "MapsApplication, Transportation",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "TRY"
+    }
+  }
+  </script>
+
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="/src/css/index.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/bus-icon.svg" />
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OtobüsDenizli">
+
+  <script>
+    // Service Worker Kaydı
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW Kayıt Başarılı:', reg.scope))
+          .catch(err => console.log('SW Kayıt Hatası:', err));
+      });
+    }
+  </script>
+</head>
+
+<body data-theme="dark">
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-bus">🚌</div>
+      <p class="loading-text">OtobüsDenizli yükleniyor...</p>
+    </div>
+  </div>
+
+  <!-- App Container -->
+  <div id="app" class="app-container">
+
+    <!-- Header -->
+    <header class="app-header" id="app-header">
+      <div class="header-left">
+        <div class="logo">
+          <span class="logo-icon">🚌</span>
+          <h1 class="logo-text">OtobüsDenizli</h1>
+        </div>
+        <span class="logo-subtitle">Akıllı Şehir İçi Rota Asistanı</span>
+      </div>
+      <div class="header-right">
+        <button id="lang-toggle" class="btn-icon" title="Dili Değiştir / Change Language" aria-label="Dil seçimi">
+          <span class="lang-text">TR</span>
+        </button>
+        <button id="btn-about" class="btn-icon" title="Proje Hakkında / Yasal Uyarı" aria-label="Hakkında"
+          onclick="document.getElementById('about-modal').classList.remove('hidden')">
+          ℹ️
+        </button>
+        <button id="theme-toggle" class="btn-icon" title="Tema Değiştir" aria-label="Tema değiştir">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀️</span>
+        </button>
+        <button id="btn-nearby" class="btn-icon" title="Yakındaki Duraklar" aria-label="Yakındaki duraklar">
+          📍
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Search Panel (Left Side / Top on Mobile) -->
+      <aside class="search-panel" id="search-panel">
+
+        <!-- Search Form -->
+        <div class="search-card glass-card">
+          <h2 class="search-title">
+            <span class="search-title-icon">🗺️</span>
+            Nereye Gitmek İstiyorsun?
+          </h2>
+
+          <div class="search-mode-toggle"
+            style="display:flex; background:var(--bg-input); border-radius:8px; padding:4px; margin-bottom:16px; border:1px solid var(--border-default);">
+            <button id="mode-all" class="mode-btn active"
+              style="flex:1; padding:6px; border:none; background:var(--bg-card); border-radius:6px; font-size:0.8rem; font-weight:600; color:var(--text-primary); cursor:pointer; box-shadow:var(--shadow-sm); transition:all 0.2s;">🌍
+              Konum & Durak</button>
+            <button id="mode-stops" class="mode-btn"
+              style="flex:1; padding:6px; border:none; background:transparent; border-radius:6px; font-size:0.8rem; font-weight:600; color:var(--text-secondary); cursor:pointer; transition:all 0.2s;">🚏
+              Sadece Durak</button>
+          </div>
+
+          <div class="search-form" id="search-form">
+            <!-- Start Point -->
+            <div class="input-group">
+              <div class="input-wrapper">
+                <span class="input-icon input-icon-start">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="12" cy="12" r="9" stroke-dasharray="4 3" />
+                  </svg>
+                </span>
+                <input type="text" id="input-start" class="search-input" placeholder="Nereden? (durak adı veya konum)"
+                  autocomplete="off" />
+                <button onclick="window.__denizlibus.utils.handleSaveLocation('start')"
+                  class="btn-location btn-save-loc" title="Bu Konumu Kaydet" style="color:#f59e0b; right:42px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                    </path>
+                  </svg>
+                </button>
+                <button id="btn-my-location-start" class="btn-location" title="Konumumu Kullan"
+                  aria-label="Konumumu kullan başlangıç">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+                  </svg>
+                </button>
+              </div>
+              <ul id="suggestions-start" class="suggestions-list hidden"></ul>
+            </div>
+
+            <!-- Swap Button -->
+            <button id="btn-swap" class="btn-swap" title="Başlangıç ve varış noktalarını değiştir"
+              aria-label="Noktaları değiştir">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+
+            <!-- End Point -->
+            <div class="input-group">
+              <div class="input-wrapper">
+                <span class="input-icon input-icon-end">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                    <circle cx="12" cy="9" r="2.5" />
+                  </svg>
+                </span>
+                <input type="text" id="input-end" class="search-input" placeholder="Nereye? (durak adı veya konum)"
+                  autocomplete="off" />
+                <button onclick="window.__denizlibus.utils.handleSaveLocation('end')" class="btn-location btn-save-loc"
+                  title="Bu Konumu Kaydet" style="color:#f59e0b; right:42px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z">
+                    </path>
+                  </svg>
+                </button>
+                <button id="btn-my-location-end" class="btn-location" title="Konumumu Kullan"
+                  aria-label="Konumumu kullan varış">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+                  </svg>
+                </button>
+              </div>
+              <ul id="suggestions-end" class="suggestions-list hidden"></ul>
+            </div>
+
+            <!-- Time Picker -->
+            <div class="input-group time-picker-wrapper" style="margin-top:2px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <label for="departure-time"
+                  style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">⏰
+                  Kalkış Zamanı</label>
+              </div>
+              <select id="departure-time" class="search-input"
+                style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-default); background:var(--bg-input); color:var(--text-primary); cursor:pointer; font-size:0.9rem;">
+                <option value="now">Şimdi Çıkış</option>
+                <option value="custom">İleriki Bir Saat Seç...</option>
+              </select>
+              <input type="time" id="departure-time-custom" class="search-input hidden"
+                style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-default); background:var(--bg-input); color:var(--text-primary); margin-top:8px; font-size:0.9rem;">
+            </div>
+
+            <!-- Favorites Section -->
+            <div id="favorites-container" class="favorites-container hidden" style="margin-bottom: 20px;">
+              <div
+                style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom: 8px;">
+                ⭐ Kayıtlı Konumlarım</div>
+              <div id="favorites-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Actions Section -->
+            <div style="display:flex; justify-content: space-between; align-items: stretch; gap:10px;">
+              <button id="btn-search" class="btn-search" style="flex:1;" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <span>Rota Bul</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Route Results -->
+        <div id="route-results" class="route-results hidden">
+          <!-- Will be populated dynamically -->
+        </div>
+
+        <!-- Nearby Stops Panel -->
+        <div id="nearby-panel" class="nearby-panel hidden">
+          <div class="glass-card">
+            <h3 class="section-title">
+              <span>📍</span> Yakındaki Duraklar
+            </h3>
+            <div id="nearby-list" class="nearby-list">
+              <div class="empty-state">
+                <span class="empty-icon">📍</span>
+                <p>Konumunuza yakın durakları bulmak için konum iznine ihtiyacımız var.</p>
+                <button id="btn-request-location" class="btn-primary-sm">Konumu Aç</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Map Container -->
+      <div class="map-container" id="map-container">
+        <div id="map" class="map"></div>
+
+        <!-- Map Controls -->
+        <div class="map-controls">
+          <button id="btn-center-map" class="btn-map-control" title="Denizli'ye Odaklan" aria-label="Haritayı merkezle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="status-bar hidden">
+          <span id="status-text"></span>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Timetable Viewer Modal -->
+  <div id="modal-timetable" class="modal-overlay"
+    style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(4px); z-index:9999; display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition:opacity 0.25s ease;">
+    <div class="modal-content glass-card"
+      style="position:relative; width:90%; max-width:600px; max-height:85vh; padding:20px; overflow-y:auto; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+      <div class="modal-header"
+        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-default); padding-bottom:12px; margin-bottom:16px;">
+        <h3 id="modal-timetable-title" style="margin:0; font-size:1.15rem; color:var(--text-primary);">📅 Resmi Kalkış
+          Saatleri</h3>
+        <button id="modal-timetable-close"
+          style="background:transparent; border:none; color:var(--text-secondary); font-size:1.8rem; line-height:1; cursor:pointer; padding:0; outline:none; transition:color 0.2s;">&times;</button>
+      </div>
+      <div id="modal-timetable-body"
+        style="text-align:center; min-height:150px; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+        <div id="modal-timetable-loader" class="loading-spinner"></div>
+        <img id="modal-timetable-img" src="" alt="Otobüs Saatleri Tablosu"
+          style="max-width:100%; height:auto; border-radius:6px; display:none; border:1px solid var(--border-default);">
+        <p id="modal-timetable-error" class="hidden" style="color:#ef4444; margin-top:10px; font-weight:500;">Saat
+          tablosu bulunamadı veya yüklenemedi.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- App JS -->
+  <!-- About / Disclaimer Modal -->
+  <div id="about-modal" class="modal hidden">
+    <div class="modal-content" style="max-width:500px; padding:30px;">
+      <button class="modal-close" id="btn-close-about"
+        onclick="document.getElementById('about-modal').classList.add('hidden')">&times;</button>
+      <h2 style="margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+        <span>ℹ️</span> OtobüsDenizli Hakkında
+      </h2>
+      <div
+        style="font-size:0.9rem; line-height:1.6; color:var(--text-secondary); display:flex; flex-direction:column; gap:15px;">
+        <p><strong>OtobüsDenizli</strong>, Denizli halkının toplu taşımadaki "aktarma" ve "otobüs kaçırma" problemlerine
+          çözüm üretmek vizyonuyla, bağımsız bir geliştirici (<a href="https://www.linkedin.com/in/cagdast39/"
+            target="_blank" style="color:var(--primary-color);">Çağdaş Topal</a>) tarafından portfolyo projesi olarak
+          kodlanmıştır.</p>
+
+        <p>Gelişmiş "Zaman Makinesi" algoritması kullanarak canlı GPS lokasyonları üzerinden en iyi rotayı tahmin etmeye
+          çalışır. </p>
+
+        <div style="background:var(--bg-tertiary); padding:12px; border-radius:8px; border-left:4px solid #ef4444;">
+          <h4 style="color:var(--text-primary); margin-bottom:5px;">Yasal Uyarı (Disclaimer)</h4>
+          <p style="font-size:0.8rem; margin:0;">Bu uygulama T.C. Denizli Büyükşehir Belediyesi'nin <strong>resmi bir
+              hizmeti DEĞİLDİR.</strong> Herhangi bir <u>ticari unvan veya kâr amacı</u> gütmemektedir. Tüm otobüs ve
+            konum verileri belediyenin açık proxy ağlarından tamamen eğitim ve deneyim sağlama (açık kaynak) amacıyla
+            tüketilecek şekilde konumlandırılmıştır.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="document.getElementById('about-modal').classList.add('hidden')"
+          style="margin-top:10px;">Anladım, Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

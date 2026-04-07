@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/denizli/(.*)",
+      "destination": "/api/proxy"
+    },
+    {
+      "source": "/api/google/(.*)",
+      "destination": "https://maps.googleapis.com/$1"
+    }
+  ]
+}

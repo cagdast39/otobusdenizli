@@ -1,0 +1,31 @@
+{
+  "name": "OtobüsDenizli - Akıllı Rota Asistanı",
+  "short_name": "OtobüsDenizli",
+  "description": "Denizli için optimize edilmiş hızlı otobüs rotası bulucu ve canlı zaman makinesi.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/bus-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/bus-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["navigation", "travel", "transportation"],
+  "shortcuts": [
+    {
+      "name": "Yakındaki Duraklar",
+      "url": "/?nearby=true",
+      "icons": [{ "src": "/bus-icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}
