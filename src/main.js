@@ -36,6 +36,7 @@ const state = {
   searchMode: 'all', // 'all' = Harita+Durak, 'stops' = Sadece Durak
   routeIndexValid: false,
   lang: localStorage.getItem('denizlibus-lang') || 'tr',
+  currentSortType: 'all',
 };
 
 // ===========================
@@ -166,8 +167,10 @@ function updateTranslations() {
   const aboutTitle = $('#about-modal h2 span:last-child');
   if (aboutTitle) aboutTitle.textContent = ` ${t.about}`;
   
-  // Rota sonuçları (varsa) yeniden render et? 
-  // Hayır, bir sonraki aramada güncellensin veya basitçe bırakalım.
+  // Rota sonuçları (varsa) yeniden render et
+  if (currentResults && !els.routeResults.classList.contains('hidden')) {
+    displayResults(currentResults, state.currentSortType);
+  }
 }
 
 function toggleLanguage() {
@@ -746,6 +749,7 @@ const displayName = (name, code) => {
 
 function displayResults(result, sortType = 'all') {
   currentResults = result;
+  state.currentSortType = sortType;
   els.routeResults.classList.remove('hidden');
 
   if (!result.routes.length) {
